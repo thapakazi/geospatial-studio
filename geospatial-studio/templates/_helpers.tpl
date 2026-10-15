@@ -126,7 +126,7 @@ Uses pgbouncer if enabled (pool name matches database name), otherwise direct po
 {{- $host := include "geospatial-studio.postgres.host" . -}}
 {{- $port := include "geospatial-studio.postgres.port" . -}}
 {{- /* Pool name matches database name, so same URI works for both PgBouncer and direct */ -}}
-postgresql://{{ .Values.global.postgres.postgres_user }}:{{ .Values.global.postgres.postgres_password }}@{{ $host }}:{{ $port }}/{{ .Values.global.postgres.dbs.mlflow }}
+postgresql+psycopg2://{{ .Values.global.postgres.postgres_user }}:{{ .Values.global.postgres.postgres_password }}@{{ $host }}:{{ $port }}/{{ .Values.global.postgres.dbs.mlflow }}
 {{- end }}
 
 {{/*

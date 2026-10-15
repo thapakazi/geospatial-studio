@@ -150,7 +150,7 @@ spec:
       
       # 10. MinIO (~100MB)
       - name: prepull-10-minio
-        image: quay.io/minio/minio:latest
+        image: rustfs/rustfs:latest
         command: ['sh', '-c', 'echo "✓ MinIO image pulled" && sleep 1']
         resources:
           requests:

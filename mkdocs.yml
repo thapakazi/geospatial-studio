@@ -19,11 +19,13 @@ nav:
         - Kind Cluster: deployment/kind_cluster_deployment.md
         - NVKind Cluster: deployment/nvkind_cluster_deployment.md
     - OpenShift Cluster: deployment/detailed_deployment_cluster.md
+    - Troubleshooting: deployment/troubleshooting.md
       
   - User Guides:
     - Fine-Tuning:
       - Dataset Onboarding: user-guides/dataset-factory/dataset-factory.md
       - Tuning Studio: user-guides/fine-tuning/tuning-studio.md
+      - Local Training on Apple GPU: user-guides/fine-tuning/local-apple-gpu.md
       - API Reference: user-guides/fine-tuning/fine-tuning-service.md
     - Inference:
       - Inference Lab: user-guides/inference/inference-lab.md
