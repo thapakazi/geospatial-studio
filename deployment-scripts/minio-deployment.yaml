@@ -48,19 +48,34 @@ spec:
       labels:
         app: minio
     spec:
+      # RustFS runs as non-root uid/gid 10001; fsGroup makes the PVC writable.
+      securityContext:
+        fsGroup: 10001
       containers:
+      # Name/labels deliberately kept as "minio" so the Service selector,
+      # the deploy script's `kubectl wait -l app=minio`, and the hardcoded
+      # endpoint minio.default.svc.cluster.local:9000 all keep working.
       - name: minio
-        image: quay.io/minio/minio:latest
-        args:
-        - server
-        - /data
-        - --console-address
-        - ":9001"
+        # Upstream quay.io/minio/minio was removed from all public registries.
+        # RustFS is an Apache-2.0, S3-compatible replacement (native arm64).
+        image: rustfs/rustfs:latest
+        # No args: the image entrypoint starts the server itself.
         env:
-        - name: MINIO_ROOT_USER
+        - name: RUSTFS_ACCESS_KEY
           value: "minioadmin"
-        - name: MINIO_ROOT_PASSWORD
+        - name: RUSTFS_SECRET_KEY
           value: "minioadmin"
+        - name: RUSTFS_VOLUMES
+          value: "/data"
+        - name: RUSTFS_ADDRESS
+          value: ":9000"
+        - name: RUSTFS_CONSOLE_ENABLE
+          value: "true"
+        - name: RUSTFS_CONSOLE_ADDRESS
+          value: ":9001"
+        # Serve HTTPS on :9000 - cos-s3-csi-sc.yaml expects https://minio...:9000
+        - name: RUSTFS_TLS_PATH
+          value: "/certs"
         ports:
         - containerPort: 9000
           name: api
@@ -68,7 +83,7 @@ spec:
           name: console
         volumeMounts:
         - name: minio-tls-certs
-          mountPath: /root/.minio/certs
+          mountPath: /certs
           readOnly: true
         - name: data
           mountPath: /data
@@ -84,13 +99,12 @@ spec:
         secret:
           secretName: minio-tls-secret
           items:
+          # RustFS requires these exact filenames in RUSTFS_TLS_PATH.
           - key: tls.crt
-            path: public.crt
+            path: rustfs_cert.pem
           - key: tls.key
-            path: private.key
+            path: rustfs_key.pem
       - name: data
-        # Using emptyDir for local deployment without shared storage
-        # emptyDir: {}
         persistentVolumeClaim:
           claimName: minio-pvc
 ---
